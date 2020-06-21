@@ -27,7 +27,8 @@ def rm_linestring(x, idx):
         print(x)
 
 
-flatten = lambda l: [item for sublist in l for item in sublist]
+def flatten(list):
+    return([item for sublist in list for item in sublist])
 
 
 #%%
@@ -42,8 +43,8 @@ fig = go.Figure()
 
 for rang_sub, rang_sub_name, width in zip(['N', 'B', 'G', 'E'], ['Nebennetz', 'Basisroute', 'Grundnetz', 'erweitertes Grundnetz'], [3, 5, 5, 4]):
     df_select = df[df.M18_RANG_SUB == rang_sub]
-    lons = flatten(df_select.lons.values)
-    lats = flatten(df_select.lats.values)
+    lons = flatten(df_select.lons)
+    lats = flatten(df_select.lats)
     fig.add_trace(
         go.Scattermapbox(
             name=rang_sub_name,

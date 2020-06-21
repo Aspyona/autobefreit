@@ -38,15 +38,15 @@ df = df[['M18_RANG_SUB', 'RANG', 'lons', 'lats']]
 
 # Nebennetz + Hauptnetz
 df_select = df[df.RANG != 'H']
-lons = flatten(df_select.lons.values)
-lats = flatten(df_select.lats.values)
+lons = flatten(df_select.lons)
+lats = flatten(df_select.lats)
 
 fig, ax = plt.subplots(figsize=(24, 10))
 plt.plot(lons, lats, lw=0.5, color='gray')
 
 df_select = df[df.RANG == 'H']
-lons = flatten(df_select.lons.values)
-lats = flatten(df_select.lats.values)
+lons = flatten(df_select.lons)
+lats = flatten(df_select.lats)
 
 plt.plot(lons, lats, lw=1, color='gray')
 
@@ -62,8 +62,8 @@ plt.savefig('banner_NH.jpeg', dpi=350)
 
 # only Hauptnetz
 df_select = df[df.RANG == 'H']
-lons = flatten(df_select.lons.values)
-lats = flatten(df_select.lats.values)
+lons = flatten(df_select.lons)
+lats = flatten(df_select.lats)
 
 fig, ax = plt.subplots(figsize=(24, 10))
 plt.plot(lons, lats, lw=1, color='gray')
@@ -119,8 +119,8 @@ for l2, color, alpha in zip(cats, colors, alphas):
 # ax.add_collection(p)
 
 df_select = df[df.RANG == 'H']
-lons = flatten(df_select.lons.values)
-lats = flatten(df_select.lats.values)
+lons = flatten(df_select.lons)
+lats = flatten(df_select.lats)
 plt.plot(lons, lats, lw=1, color='gray')
 plt.axis('off')
 
