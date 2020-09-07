@@ -1,3 +1,13 @@
+.directory
+._sync*
+*.png
+*.pdf
+*.jpeg
+*.jpg
+*.svg
+*.svg(converted)
+*.svg(converted).autosave
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

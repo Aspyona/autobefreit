@@ -6,8 +6,10 @@ from matplotlib.patches import Polygon
 
 df = pd.read_csv('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:RADNETZOGD%20&srsName=EPSG:4326&outputFormat=csv')
 
+list(df)
+df.groupby(by=['RANG', 'M18_RANG_SUB']).size()
 
-#%%
+# %%
 
 
 def rm_linestring(x, idx):
@@ -27,13 +29,14 @@ def flatten(list):
     return([item for sublist in list for item in sublist])
 
 
-#%%
+# %%
+
 df['lons'] = df.SHAPE.apply(rm_linestring, idx=0)
 df['lats'] = df.SHAPE.apply(rm_linestring, idx=1)
 
 df = df[['M18_RANG_SUB', 'RANG', 'lons', 'lats']]
 
-#%%
+# %%
 
 
 # Nebennetz + Hauptnetz
@@ -53,12 +56,12 @@ plt.plot(lons, lats, lw=1, color='gray')
 xlim = (plt.xlim())
 ylim = (plt.ylim())
 plt.axis('off')
-plt.savefig('banner_NH.svg')
-plt.savefig('banner_NH.pdf')
-plt.savefig('banner_NH.jpeg', dpi=350)
+# plt.savefig('banner_NH.svg')
+# plt.savefig('banner_NH.pdf')
+# plt.savefig('banner_NH.jpeg', dpi=350)
 
 
-#%%
+# %%
 
 # only Hauptnetz
 df_select = df[df.RANG == 'H']
@@ -70,16 +73,46 @@ plt.plot(lons, lats, lw=1, color='gray')
 plt.axis('off')
 plt.xlim(xlim)
 plt.ylim(ylim)
-plt.savefig('banner_H.svg')
-plt.savefig('banner_H.pdf')
-plt.savefig('banner_H.jpeg', dpi=350)
+# plt.savefig('banner_H.svg')
+# plt.savefig('banner_H.pdf')
+# plt.savefig('banner_H.jpeg', dpi=350)
 
-#%%
+# %%
+
+# for poster
+
+df.M18_RANG_SUB.value_counts()
+# only N B G E
+
+fig, ax = plt.subplots(figsize=(26, 20))
+
+df_select = df[df.RANG == 'H']
+lons = flatten(df_select.lons)
+lats = flatten(df_select.lats)
+plt.plot(lons, lats, lw=0.5, color='gray')
+
+df_select = df[df.M18_RANG_SUB == 'G']
+lons = flatten(df_select.lons)
+lats = flatten(df_select.lats)
+plt.plot(lons, lats, lw=1, color='black', alpha=0.2)
+
+df_select = df[df.M18_RANG_SUB == 'B']
+lons = flatten(df_select.lons)
+lats = flatten(df_select.lats)
+plt.plot(lons, lats, lw=1, color='black', alpha=0.4)
+
+plt.axis('off')
+plt.xlim(xlim)
+plt.ylim(ylim)
+
+# plt.savefig('bicycle.pdf')
+
+# %%
 
 
 df_realnut = pd.read_csv('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:REALNUT2018OGD%20&srsName=EPSG:4326&outputFormat=csv')
 
-#%%
+# %%
 
 
 def rm_polygon(x):
@@ -95,12 +128,12 @@ def rm_polygon(x):
         print(x[:7])
 
 
-#%%
+# %%
 
 df_realnut['polygon_edges'] = df_realnut.SHAPE.apply(rm_polygon)
-df_realnut = df_realnut[['polygon_edges', 'NUTZUNG_LEVEL2']]
+df_realnut = df_realnut[['polygon_edges', 'NUTZUNG_LEVEL1', 'NUTZUNG_LEVEL2', 'NUTZUNG_LEVEL3']]
 
-#%%
+# %%
 
 fig, ax = plt.subplots(figsize=(24, 10))
 patches = []
@@ -127,7 +160,44 @@ plt.axis('off')
 plt.xlim(xlim)
 plt.ylim(ylim)
 
-plt.savefig('banner_green.svg')
-plt.savefig('banner_green.pdf')
-plt.savefig('banner_green.jpeg', dpi=350)
+# plt.savefig('banner_green.svg')
+# plt.savefig('banner_green.pdf')
+# plt.savefig('banner_green.jpeg', dpi=350)
+plt.show()
+
+
+# %%
+
+# plot streets
+
+fig, ax = plt.subplots(figsize=(24, 16))
+patches = []
+
+df_realnut.groupby(by=['NUTZUNG_LEVEL1', 'NUTZUNG_LEVEL2', 'NUTZUNG_LEVEL3']).size()
+
+cats = ['Straßenraum begrünt', 'Straßenraum unbegrünt', 'Parkplätze u. Parkhäuser']
+colors = ['k', 'k', 'k']
+alphas = [0.5, 0.7, 0.5]
+for l2, color, alpha in zip(cats, colors, alphas):
+    df_realnut_select = df_realnut[df_realnut.NUTZUNG_LEVEL3 == l2]
+    polygon_edges = np.asarray(flatten(df_realnut_select.polygon_edges))
+    polygon = Polygon(polygon_edges, facecolor=color, lw=0, alpha=alpha)
+    patches.append(polygon)
+    ax.add_artist(polygon)
+
+df_realnut_select = df_realnut[(df_realnut.NUTZUNG_LEVEL2 != 'Straßenraum') & (df_realnut.NUTZUNG_LEVEL3 != 'Parkplätze u. Parkhäuser')]
+polygon_edges = np.asarray(flatten(df_realnut_select.polygon_edges))
+polygon = Polygon(polygon_edges, facecolor='white', lw=0, alpha=1)
+patches.append(polygon)
+ax.add_artist(polygon)
+
+plt.xlim(xlim)
+plt.ylim(ylim)
+plt.axis('off')
+
+
+# plt.savefig('streets.svg')
+# plt.savefig('streets.png')
+# plt.savefig('streets.pdf')
+
 plt.show()
