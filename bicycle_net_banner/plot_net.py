@@ -102,8 +102,8 @@ lats = flatten(df_select.lats)
 plt.plot(lons, lats, lw=1, color='black', alpha=0.4)
 
 plt.axis('off')
-plt.xlim(xlim)
-plt.ylim(ylim)
+# plt.xlim([xlim[0], xlim[0] + 0.4274])
+# plt.ylim([ylim[0], ylim[0] + 0.4274])
 
 # plt.savefig('bicycle.pdf')
 
