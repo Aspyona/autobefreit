@@ -1,18 +1,23 @@
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Polygon
+import pandas as pd
+import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
-import plotly.express as px
 from matplotlib.collections import PatchCollection
+from matplotlib.patches import Polygon
 
 df = pd.read_csv('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:RADNETZOGD%20&srsName=EPSG:4326&outputFormat=csv')
 
-df_realnut = pd.read_csv('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:REALNUT2018OGD%20&srsName=EPSG:4326&outputFormat=csv')
+# 2018
+# df_realnut = pd.read_csv('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:REALNUT2018OGD%20&srsName=EPSG:4326&outputFormat=csv')
+
+# 2020
+df_realnut = pd.read_csv(
+    'https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=csv&typeName=ogdwien:REALNUT2020OGD')
 
 
-#%%
+# %%
 
 
 def rm_linestring(x, idx):
@@ -58,19 +63,19 @@ def rm_polygon(x):
         print(x[:7])
 
 
-#%%
+# %%
 
 df_realnut['polygon_edges'] = df_realnut.SHAPE.apply(rm_polygon_str)
 df_realnut['polygon_edges_for_matplotlib'] = df_realnut.SHAPE.apply(rm_polygon)
 # df_realnut = df_realnut[['polygon_edges', 'NUTZUNG_LEVEL2']]
 
-#%%
+# %%
 df['lons'] = df.SHAPE.apply(rm_linestring, idx=0)
 df['lats'] = df.SHAPE.apply(rm_linestring, idx=1)
 
 df = df[['M18_RANG_SUB', 'RANG', 'lons', 'lats']]
 
-#%%
+# %%
 
 
 # Nebennetz + Hauptnetz
@@ -125,10 +130,10 @@ plt.savefig('banner_street.pdf')
 plt.savefig('banner_street.jpeg', dpi=350)
 
 plt.show()
-#%%
+# %%
 
 
-#%%
+# %%
 
 
 # bugs with Straßenraum? Plot first, so other categories are on top
@@ -194,6 +199,6 @@ pio.write_html(fig, file='realnut_map/html/index.html', auto_open=False, include
 
 fig.show()
 
-#%%
-#%%
-#%%
+# %%
+# %%
+# %%

@@ -1,14 +1,28 @@
-import matplotlib.pyplot as plt
 import geopandas as gpd
 import geoplot
+import matplotlib
+import matplotlib.font_manager
+import matplotlib.pyplot as plt
+# for latex fonts
+from matplotlib import rc
+
+rc('text', usetex=True)
+# rc('text.latex', preamble=r'')
+rc('font', **{'family': 'sans-serif', 'sans-serif': ['Computer Modern Sans serif']})
+matplotlib.rcParams['text.color'] = '#515c50'
 
 
 # %%
 
-wien = gpd.read_file('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:BEZIRKSGRENZEOGD&srsName=EPSG:4326&outputFormat=json')
+wien = gpd.read_file(
+    'https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:BEZIRKSGRENZEOGD&srsName=EPSG:4326&outputFormat=json')
 
-df_realnut = gpd.read_file('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:REALNUT2018OGD%20&srsName=EPSG:4326&outputFormat=json')
+# 2018
+# df_realnut = gpd.read_file('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:REALNUT2018OGD%20&srsName=EPSG:4326&outputFormat=json')
 
+# 2020
+df_realnut = gpd.read_file(
+    'https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=json&typeName=ogdwien:REALNUT2020OGD')
 
 # %%
 
@@ -37,15 +51,19 @@ def identity_scale(minval, maxval):
     return scalar
 
 
-f, ax = plt.subplots(1, figsize=(20, 20))
-geoplot.polyplot(wien, ax=ax, color='green', alpha=0.1)
+f, ax = plt.subplots(1, figsize=(25, 25))
+# geoplot.polyplot(wien, ax=ax, color='#a2c865', alpha=0.3)
+geoplot.polyplot(wien, ax=ax, color='#95a3c3', alpha=0.1)
 ax = geoplot.cartogram(
     wien, scale='street', scale_func=identity_scale, limits=(0, 1),
-    edgecolor='None', figsize=(7, 8), ax=ax, color='black', alpha=0.7
+    # edgecolor='None', ax=ax, color='#8690ad', alpha=0.95
+    edgecolor='None', ax=ax, color='#95a3c3', alpha=0.95
 )
-geoplot.polyplot(wien, edgecolor='gray', ax=ax)
-
-
-list(wien)
+geoplot.polyplot(wien, edgecolor='gray', ax=ax, lw=1)
+plt.hist([], histtype='stepfilled', color='#95a3c3', alpha=0.95, label=' Straßen \& Parkplätze', lw=3)
+plt.hist([], histtype='stepfilled', fc=(149 / 255, 163 / 255, 195 / 255, 0.1), label=' Andere Nutzung', lw=3, edgecolor='gray')
+plt.legend(loc='lower center', fontsize=46, frameon=False, ncol=2, bbox_to_anchor=[0, -0.12, 1, 1])
+plt.tight_layout()
+plt.savefig('./poster_street_area/streetarea_districts_legend_blue.pdf')
 
 # %%

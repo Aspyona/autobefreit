@@ -1,20 +1,24 @@
-import pandas as pd
 import os
-import plotly.graph_objects as go
-import plotly.io as pio
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import numpy as np
 import sys
 
-df = pd.read_csv('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:REALNUT2018OGD%20&srsName=EPSG:4326&outputFormat=csv')
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.io as pio
 
-df.loc[df.NUTZUNG_LEVEL2 == 'weitere verkehrliche Nutzungen', 'NUTZUNG_LEVEL2'] = df.loc[df.NUTZUNG_LEVEL2 == 'weitere verkehrliche Nutzungen', 'NUTZUNG_LEVEL3']
+# df = pd.read_csv('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&typeName=ogdwien:REALNUT2018OGD%20&srsName=EPSG:4326&outputFormat=csv')
+
+df = pd.read_csv('https://data.wien.gv.at/daten/geo?service=WFS&request=GetFeature&version=1.1.0&srsName=EPSG:4326&outputFormat=csv&typeName=ogdwien:REALNUT2020OGD')
+
+df.loc[df.NUTZUNG_LEVEL2 == 'weitere verkehrliche Nutzungen',
+       'NUTZUNG_LEVEL2'] = df.loc[df.NUTZUNG_LEVEL2 == 'weitere verkehrliche Nutzungen', 'NUTZUNG_LEVEL3']
 df.loc[df.NUTZUNG_LEVEL2 == 'Straßenraum', 'NUTZUNG_LEVEL2'] = 'Straßenraum u. Parkplätze'
 df.loc[df.NUTZUNG_LEVEL2 == 'Parkplätze u. Parkhäuser', 'NUTZUNG_LEVEL2'] = 'Straßenraum u. Parkplätze'
 
 
-#%%
+# %%
 
 label_colors = {'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)': '#EF553B',
                 'Naturraum': '#FECB52',
@@ -30,11 +34,15 @@ label_colors = {'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)': '#EF553B',
                 'Bahnhöfe und Bahnanlagen': '#FF6692',
                 'Sonstiges': 'rgb(51, 34, 136)'}
 labels = df.NUTZUNG_LEVEL2.unique()
-for district in np.arange(1, 24):
+for district in np.arange(0, 24):
     os.system('mkdir -p realnut/' + str(district))
     sizes = []
     labels_used = []
-    is_district = df.BEZ == district
+    if district == 0:
+        is_district = df.BEZ > 0  # use all
+        assert is_district.sum() == len(df)
+    else:
+        is_district = df.BEZ == district
     district_area = df[is_district].FLAECHE.sum()
     others_idx = False
 
@@ -63,11 +71,11 @@ for district in np.arange(1, 24):
     pio.write_html(fig, file='realnut/' + str(district) + '/index.html', auto_open=False, include_plotlyjs="cdn")  # , include_mathjax="cdn")
     fig.show()
 
-#%%
+# %%
 
 sys.exit(0)
 
-#%%
+# %%
 
 df.NUTZUNG_LEVEL1.value_counts()
 df.NUTZUNG_LEVEL2.value_counts()
@@ -81,7 +89,7 @@ for i in range(21):
     district_array.append(frac)
     print(i + 1, frac)
 
-#%%
+# %%
 
 mpl.rcParams['font.size'] = 16.0
 
@@ -98,9 +106,10 @@ ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 plt.show()
 
 
-#%%
+# %%
 
 import numpy as np
+
 fig1, ax1 = plt.subplots(figsize=(10, 5))
 plt.bar(np.arange(1, 22), district_array)
 plt.xticks(np.arange(1, 22, 1.0))
