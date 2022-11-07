@@ -82,6 +82,13 @@ df = df[['M18_RANG_SUB', 'RANG', 'lons', 'lats']]
 
 # %%
 
+df_realnut.loc[df_realnut.NUTZUNG_LEVEL2 == 'weitere verkehrliche Nutzungen',
+               'NUTZUNG_LEVEL2'] = df_realnut.loc[df_realnut.NUTZUNG_LEVEL2 == 'weitere verkehrliche Nutzungen', 'NUTZUNG_LEVEL3']
+df_realnut.loc[df_realnut.NUTZUNG_LEVEL2 == 'Straßenraum', 'NUTZUNG_LEVEL2'] = 'Straßenraum u. Parkplätze'
+df_realnut.loc[df_realnut.NUTZUNG_LEVEL2 == 'Parkplätze u. Parkhäuser', 'NUTZUNG_LEVEL2'] = 'Straßenraum u. Parkplätze'
+
+# %%
+
 use_color = True
 
 # Nebennetz + Hauptnetz
@@ -107,12 +114,18 @@ plt.show()
 fig, ax = plt.subplots(figsize=(24, 10))
 patches = []
 
-cats = ['weitere verkehrliche Nutzungen', 'Straßenraum', 'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)', 'Naturraum',
-        'Landwirtschaft', 'Industrie- und Gewerbenutzung', 'Gewässer',
-        'Geschäfts,- Kern- und Mischnutzung (Schwerpunkt betriebl. Tätigkeit)',
-        'Erholungs- u. Freizeiteinrichtungen',
-        'Technische Infrastruktur/Kunstbauten/Sondernutzung',
-        'soziale Infrastruktur']
+cats = [
+    # 'weitere verkehrliche Nutzungen',
+    'Straßenraum u. Parkplätze', 'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)', 'Naturraum',
+    'Landwirtschaft', 'Industrie- und Gewerbenutzung', 'Gewässer',
+    'Geschäfts,- Kern- und Mischnutzung (Schwerpunkt betriebl. Tätigkeit)',
+    'Erholungs- u. Freizeiteinrichtungen',
+    'Technische Infrastruktur/Kunstbauten/Sondernutzung',
+    'soziale Infrastruktur',
+    'Transport und Logistik inkl. Lager',
+    'Bahnhöfe und Bahnanlagen',
+    'Sonstiges',
+]
 
 label_colors = {'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)': '#EF553B',
                 'Naturraum': '#FECB52',
@@ -126,8 +139,9 @@ label_colors = {'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)': '#EF553B',
                 'soziale Infrastruktur': '#AB63FA',
                 'Bahnhöfe und Bahnanlagen': '#FF6692',
                 'Sonstiges': 'rgb(51, 34, 136)',
-                'Straßenraum': '#636EFA',
-                'weitere verkehrliche Nutzungen': '#636EFA',
+                # 'Straßenraum': '#636EFA',
+                'Straßenraum u. Parkplätze': '#636EFA',
+                # 'weitere verkehrliche Nutzungen': '#636EFA',
                 }
 
 
@@ -183,13 +197,13 @@ fig = go.Figure()
 
 df_realnut.NUTZUNG_LEVEL2.unique()
 
-cats = ['Straßenraum', 'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)', 'Naturraum',
-        'Landwirtschaft', 'weitere verkehrliche Nutzungen',
-        'Gewässer', 'Industrie- und Gewerbenutzung',
-        'Geschäfts,- Kern- und Mischnutzung (Schwerpunkt betriebl. Tätigkeit)',
-        'Erholungs- u. Freizeiteinrichtungen',
-        'Technische Infrastruktur/Kunstbauten/Sondernutzung',
-        'soziale Infrastruktur']
+# cats = ['Straßenraum', 'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)', 'Naturraum',
+#         'Landwirtschaft', 'weitere verkehrliche Nutzungen',
+#         'Gewässer', 'Industrie- und Gewerbenutzung',
+#         'Geschäfts,- Kern- und Mischnutzung (Schwerpunkt betriebl. Tätigkeit)',
+#         'Erholungs- u. Freizeiteinrichtungen',
+#         'Technische Infrastruktur/Kunstbauten/Sondernutzung',
+#         'soziale Infrastruktur']
 
 shapes = []
 for cat, color in zip(cats, colors):
@@ -232,7 +246,7 @@ fig.update_layout(
 
 fig.update_layout(legend=dict(x=1, y=1, traceorder="normal", xanchor='left', itemclick=False, itemdoubleclick=False))
 fig.update_layout(autosize=True)
-pio.write_html(fig, file='realnut_map/html/index.html', auto_open=False, include_plotlyjs="cdn")  # , include_mathjax="cdn")
+pio.write_html(fig, file='html/index2.html', auto_open=False, include_plotlyjs="cdn")  # , include_mathjax="cdn")
 
 fig.show()
 
