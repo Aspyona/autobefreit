@@ -57,6 +57,10 @@ def rm_polygon(x):
     if x[:12] == 'MULTIPOLYGON':
         coords = []
         for linestrings in x[16:-3].split('), ('):
+            if linestrings[-1] == ')':
+                linestrings = linestrings[:-1]
+            if linestrings[0] == '(':
+                linestrings = linestrings[1:]
             coords += [list(map(float, linestring.split(' '))) for linestring in linestrings.split(', ')] + [[0, 0]]
         return(coords)
     else:
@@ -70,6 +74,7 @@ df_realnut['polygon_edges_for_matplotlib'] = df_realnut.SHAPE.apply(rm_polygon)
 # df_realnut = df_realnut[['polygon_edges', 'NUTZUNG_LEVEL2']]
 
 # %%
+
 df['lons'] = df.SHAPE.apply(rm_linestring, idx=0)
 df['lats'] = df.SHAPE.apply(rm_linestring, idx=1)
 
@@ -77,6 +82,7 @@ df = df[['M18_RANG_SUB', 'RANG', 'lons', 'lats']]
 
 # %%
 
+use_color = True
 
 # Nebennetz + Hauptnetz
 df_select = df[df.RANG != 'H']
@@ -108,10 +114,39 @@ cats = ['weitere verkehrliche Nutzungen', 'Straßenraum', 'Wohn- u. Mischnutzung
         'Technische Infrastruktur/Kunstbauten/Sondernutzung',
         'soziale Infrastruktur']
 
+label_colors = {'Wohn- u. Mischnutzung (Schwerpunkt Wohnen)': '#EF553B',
+                'Naturraum': '#FECB52',
+                'Landwirtschaft': 'rgb(17, 119, 51)',
+                'Transport und Logistik inkl. Lager': '#B6E880',
+                'Industrie- und Gewerbenutzung': '#FF97FF',
+                'Gewässer': '#19D3F3',
+                'Geschäfts,- Kern- und Mischnutzung (Schwerpunkt betriebl. Tätigkeit)': '#00CC96',
+                'Erholungs- u. Freizeiteinrichtungen': '#FFA15A',
+                'Technische Infrastruktur/Kunstbauten/Sondernutzung': 'rgb(153, 153, 51)',
+                'soziale Infrastruktur': '#AB63FA',
+                'Bahnhöfe und Bahnanlagen': '#FF6692',
+                'Sonstiges': 'rgb(51, 34, 136)',
+                'Straßenraum': '#636EFA',
+                'weitere verkehrliche Nutzungen': '#636EFA',
+                }
+
+
+def rgb_to_hex(r, g, b):
+    return ('#{:X}{:X}{:X}').format(r, g, b)
+
+
 colors = ['white', 'gray']
 colors += ['white'] * 10
 
 for l2, color in zip(cats, colors):
+
+    if use_color:
+        color = label_colors[l2]
+        if color[:3] == 'rgb':
+            color = color[4:-1]
+            color = color.split(', ')
+            color = rgb_to_hex(int(color[0]), int(color[1]), int(color[2]))
+
     df_realnut_select = df_realnut[df_realnut.NUTZUNG_LEVEL2 == l2]
     polygon_edges = np.asarray(flatten(df_realnut_select.polygon_edges_for_matplotlib))
     polygon = Polygon(polygon_edges, facecolor=color, lw=0)
@@ -125,13 +160,15 @@ plt.axis('off')
 plt.xlim(xlim)
 plt.ylim(ylim)
 
-plt.savefig('banner_street.svg')
-plt.savefig('banner_street.pdf')
-plt.savefig('banner_street.jpeg', dpi=350)
+if use_color:
+    plt.savefig('realnut_map.pdf')
+    plt.savefig('realnut_map.jpeg', dpi=450)
+else:
+    plt.savefig('banner_street.svg')
+    plt.savefig('banner_street.pdf')
+    plt.savefig('banner_street.jpeg', dpi=350)
 
 plt.show()
-# %%
-
 
 # %%
 
